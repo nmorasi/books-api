@@ -13,10 +13,41 @@ import (
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/jmoiron/sqlx"
 )
+
+func runMigrations(database *sqlx.DB) {
+	migrations := []string{
+		`CREATE TABLE IF NOT EXISTS users (
+			id            BIGSERIAL PRIMARY KEY,
+			name          TEXT        NOT NULL,
+			email         TEXT        NOT NULL UNIQUE,
+			password_hash TEXT        NOT NULL,
+			created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+		)`,
+		`CREATE TABLE IF NOT EXISTS books (
+			id          BIGSERIAL PRIMARY KEY,
+			user_id     BIGINT      NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			title       TEXT        NOT NULL,
+			author      TEXT        NOT NULL,
+			description TEXT        NOT NULL DEFAULT '',
+			year        INTEGER     NOT NULL DEFAULT 0,
+			created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+		)`,
+	}
+
+	for _, m := range migrations {
+		if _, err := database.Exec(m); err != nil {
+			log.Fatalf("migration failed: %v", err)
+		}
+	}
+	log.Println("migrations applied")
+}
 
 func main() {
 	database := db.Connect()
+	runMigrations(database)
 
 	userRepo := user.NewRepository(database)
 	authService := auth.NewService(userRepo)
