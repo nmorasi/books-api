@@ -1,0 +1,5 @@
+[phases.build]
+cmds = ["go build -o books-api ./cmd/api/main.go"]
+
+[start]
+cmd = "./books-api"
