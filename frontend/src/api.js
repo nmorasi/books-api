@@ -59,3 +59,37 @@ export async function deleteBook(id) {
     throw new Error(data.error);
   }
 }
+
+export async function getAnnotations(bookID) {
+  const res = await fetch(`${BASE_URL}/books/${bookID}/annotations`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error);
+  return data;
+}
+
+export async function createAnnotation(bookID, body) {
+  const res = await fetch(`${BASE_URL}/books/${bookID}/annotations`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify({ body }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error);
+  return data;
+}
+
+export async function deleteAnnotation(bookID, id) {
+  const res = await fetch(`${BASE_URL}/books/${bookID}/annotations/${id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  if (!res.ok) {
+    const data = await res.json();
+    throw new Error(data.error);
+  }
+}

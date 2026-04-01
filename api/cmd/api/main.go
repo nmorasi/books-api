@@ -1,6 +1,7 @@
 package main
 
 import (
+	"books-api/internal/annotation"
 	"books-api/internal/auth"
 	"books-api/internal/book"
 	"books-api/internal/db"
@@ -35,6 +36,13 @@ func runMigrations(database *sqlx.DB) {
 			created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 			updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 		)`,
+		`CREATE TABLE IF NOT EXISTS annotations (
+			id         BIGSERIAL PRIMARY KEY,
+			book_id    BIGINT      NOT NULL REFERENCES books(id) ON DELETE CASCADE,
+			user_id    BIGINT      NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			body       TEXT        NOT NULL,
+			created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+		)`,
 	}
 
 	for _, m := range migrations {
@@ -57,6 +65,10 @@ func main() {
 	bookService := book.NewService(bookRepo)
 	bookHandler := book.NewHandler(bookService)
 
+	annotationRepo := annotation.NewRepository(database)
+	annotationService := annotation.NewService(annotationRepo)
+	annotationHandler := annotation.NewHandler(annotationService)
+
 	r := chi.NewRouter()
 	r.Use(chimiddleware.Logger)
 	r.Use(chimiddleware.Recoverer)
@@ -78,6 +90,7 @@ func main() {
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Authenticate)
 		bookHandler.RegisterRoutes(r)
+		annotationHandler.RegisterRoutes(r)
 	})
 
 	port := os.Getenv("PORT")

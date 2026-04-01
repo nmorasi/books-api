@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getBooks, createBook, deleteBook } from "./api";
+import BookDetail from "./BookDetail";
 
 export default function Books({ user, onLogout }) {
   const [books, setBooks] = useState([]);
@@ -8,6 +9,7 @@ export default function Books({ user, onLogout }) {
   const [error, setError] = useState("");
   const [form, setForm] = useState({ title: "", author: "", description: "", year: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [selectedBook, setSelectedBook] = useState(null);
 
   useEffect(() => {
     fetchBooks();
@@ -44,7 +46,8 @@ export default function Books({ user, onLogout }) {
     }
   }
 
-  async function handleDelete(id) {
+  async function handleDelete(e, id) {
+    e.stopPropagation();
     try {
       await deleteBook(id);
       setBooks(books.filter((b) => b.id !== id));
@@ -53,15 +56,17 @@ export default function Books({ user, onLogout }) {
     }
   }
 
+  if (selectedBook) {
+    return <BookDetail book={selectedBook} onBack={() => setSelectedBook(null)} />;
+  }
+
   return (
     <div className="books-container">
       <header className="header">
         <h1 className="logo">📚 Books</h1>
         <div className="header-right">
           <span className="username">Hey, {user.name}</span>
-          <button className="btn-outline" onClick={onLogout}>
-            Sign out
-          </button>
+          <button className="btn-outline" onClick={onLogout}>Sign out</button>
         </div>
       </header>
 
@@ -135,19 +140,20 @@ export default function Books({ user, onLogout }) {
         ) : (
           <div className="book-list">
             {books.map((book) => (
-              <div key={book.id} className="book-card">
+              <div key={book.id} className="book-card clickable" onClick={() => setSelectedBook(book)}>
                 <div className="book-info">
                   <h3>{book.title}</h3>
                   <p className="book-author">{book.author}{book.year ? ` · ${book.year}` : ""}</p>
                   {book.description && <p className="book-desc">{book.description}</p>}
                 </div>
-                <button
-                  className="btn-delete"
-                  onClick={() => handleDelete(book.id)}
-                  title="Delete"
-                >
-                  ✕
-                </button>
+                <div className="book-actions">
+                  <span className="annotation-hint">Tap to annotate →</span>
+                  <button
+                    className="btn-delete"
+                    onClick={(e) => handleDelete(e, book.id)}
+                    title="Delete"
+                  >✕</button>
+                </div>
               </div>
             ))}
           </div>
