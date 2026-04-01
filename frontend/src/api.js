@@ -66,7 +66,7 @@ export async function getAnnotations(bookID) {
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error);
-  return data;
+  return data || [];
 }
 
 export async function createAnnotation(bookID, body) {

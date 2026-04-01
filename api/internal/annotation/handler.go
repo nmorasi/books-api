@@ -37,6 +37,9 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if annotations == nil {
+		annotations = []Annotation{}
+	}
 	writeJSON(w, http.StatusOK, annotations)
 }
 
