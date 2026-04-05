@@ -83,6 +83,40 @@ export async function createAnnotation(bookID, body) {
   return data;
 }
 
+export async function getCharacters(bookID) {
+  const res = await fetch(`${BASE_URL}/books/${bookID}/characters`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error);
+  return data || [];
+}
+
+export async function createCharacter(bookID, name) {
+  const res = await fetch(`${BASE_URL}/books/${bookID}/characters`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify({ name }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error);
+  return data;
+}
+
+export async function deleteCharacter(bookID, id) {
+  const res = await fetch(`${BASE_URL}/books/${bookID}/characters/${id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  if (!res.ok) {
+    const data = await res.json();
+    throw new Error(data.error);
+  }
+}
+
 export async function getSummary(bookID) {
   const res = await fetch(`${BASE_URL}/books/${bookID}/summary`, {
     headers: { Authorization: `Bearer ${getToken()}` },

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { getAnnotations, createAnnotation, deleteAnnotation, getSummary } from "./api";
+import { getAnnotations, createAnnotation, deleteAnnotation, getSummary, getCharacters, createCharacter, deleteCharacter } from "./api";
 
 export default function BookDetail({ book, onBack }) {
   const [annotations, setAnnotations] = useState([]);
@@ -11,6 +11,9 @@ export default function BookDetail({ book, onBack }) {
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryError, setSummaryError] = useState("");
   const [expandedChar, setExpandedChar] = useState(null);
+  const [characters, setCharacters] = useState([]);
+  const [newCharName, setNewCharName] = useState("");
+  const [addingChar, setAddingChar] = useState(false);
   const textareaRef = useRef(null);
 
   useEffect(() => {
@@ -18,6 +21,9 @@ export default function BookDetail({ book, onBack }) {
       .then(setAnnotations)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
+    getCharacters(book.id)
+      .then(setCharacters)
+      .catch(() => {});
   }, [book.id]);
 
   async function handleCreate(e) {
@@ -41,6 +47,47 @@ export default function BookDetail({ book, onBack }) {
     try {
       await deleteAnnotation(book.id, id);
       setAnnotations(annotations.filter((a) => a.id !== id));
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
+  function insertCharacter(name) {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const before = body.slice(0, start);
+    const after = body.slice(end);
+    const inserted = (before.length > 0 && !before.endsWith(" ") ? " " : "") + name + " ";
+    const newBody = before + inserted + after;
+    setBody(newBody);
+    setTimeout(() => {
+      ta.focus();
+      ta.setSelectionRange(before.length + inserted.length, before.length + inserted.length);
+    }, 0);
+  }
+
+  async function handleAddCharacter(e) {
+    e.preventDefault();
+    const name = newCharName.trim();
+    if (!name) return;
+    setAddingChar(true);
+    try {
+      const c = await createCharacter(book.id, name);
+      setCharacters([...characters, c]);
+      setNewCharName("");
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setAddingChar(false);
+    }
+  }
+
+  async function handleDeleteCharacter(id) {
+    try {
+      await deleteCharacter(book.id, id);
+      setCharacters(characters.filter((c) => c.id !== id));
     } catch (e) {
       setError(e.message);
     }
@@ -116,6 +163,32 @@ export default function BookDetail({ book, onBack }) {
         )}
 
         <form className="annotation-form" onSubmit={handleCreate}>
+          {(characters.length > 0 || true) && (
+            <div className="char-chips-section">
+              <div className="char-chips">
+                {characters.map((c) => (
+                  <span key={c.id} className="char-chip-wrap">
+                    <button type="button" className="char-chip" onClick={() => insertCharacter(c.name)}>
+                      {c.name}
+                    </button>
+                    <button type="button" className="char-chip-del" onClick={() => handleDeleteCharacter(c.id)}>✕</button>
+                  </span>
+                ))}
+                <form className="char-add-form" onSubmit={handleAddCharacter}>
+                  <input
+                    type="text"
+                    className="char-add-input"
+                    placeholder="+ Add character"
+                    value={newCharName}
+                    onChange={(e) => setNewCharName(e.target.value)}
+                  />
+                  {newCharName.trim() && (
+                    <button type="submit" className="char-add-btn" disabled={addingChar}>Add</button>
+                  )}
+                </form>
+              </div>
+            </div>
+          )}
           <textarea
             ref={textareaRef}
             placeholder="Write an annotation…"

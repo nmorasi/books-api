@@ -294,6 +294,77 @@ body {
 
 .annotation-date { font-size: 0.78rem; color: #555; }
 
+/* CHARACTER CHIPS */
+.char-chips-section { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.char-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.char-chip-wrap { display: flex; align-items: center; }
+
+.char-chip {
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e8e8e8;
+  border-radius: 20px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  border-right: none;
+  border-radius: 20px 0 0 20px;
+}
+
+.char-chip:hover { background: #333; border-color: #555; }
+
+.char-chip-del {
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  border-left: none;
+  color: #555;
+  border-radius: 0 20px 20px 0;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  line-height: 1;
+}
+
+.char-chip-del:hover { color: #e55; background: #2a1a1a; }
+
+.char-add-form { display: flex; align-items: center; gap: 0.3rem; }
+
+.char-add-input {
+  background: transparent;
+  border: 1px dashed #333;
+  border-radius: 20px;
+  padding: 0.3rem 0.75rem;
+  color: #888;
+  font-size: 0.85rem;
+  outline: none;
+  width: 130px;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.char-add-input:focus { border-color: #555; color: #e8e8e8; }
+.char-add-input::placeholder { color: #444; }
+
+.char-add-btn {
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #888;
+  border-radius: 20px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.char-add-btn:hover { color: #e8e8e8; }
+
 /* CHARACTER SUMMARY */
 .summary-section {
   margin-bottom: 1.5rem;
