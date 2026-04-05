@@ -83,6 +83,15 @@ export async function createAnnotation(bookID, body) {
   return data;
 }
 
+export async function getSummary(bookID) {
+  const res = await fetch(`${BASE_URL}/books/${bookID}/summary`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error);
+  return data;
+}
+
 export async function deleteAnnotation(bookID, id) {
   const res = await fetch(`${BASE_URL}/books/${bookID}/annotations/${id}`, {
     method: "DELETE",

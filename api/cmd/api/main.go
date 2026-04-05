@@ -6,6 +6,7 @@ import (
 	"books-api/internal/book"
 	"books-api/internal/db"
 	"books-api/internal/middleware"
+	"books-api/internal/summary"
 	"books-api/internal/user"
 	"log"
 	"net/http"
@@ -68,6 +69,7 @@ func main() {
 	annotationRepo := annotation.NewRepository(database)
 	annotationService := annotation.NewService(annotationRepo)
 	annotationHandler := annotation.NewHandler(annotationService)
+	summaryHandler := summary.NewHandler(annotationRepo)
 
 	r := chi.NewRouter()
 	r.Use(chimiddleware.Logger)
@@ -91,6 +93,7 @@ func main() {
 		r.Use(middleware.Authenticate)
 		bookHandler.RegisterRoutes(r)
 		annotationHandler.RegisterRoutes(r)
+		summaryHandler.RegisterRoutes(r)
 	})
 
 	port := os.Getenv("PORT")

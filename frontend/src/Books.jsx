@@ -48,6 +48,7 @@ export default function Books({ user, onLogout }) {
 
   async function handleDelete(e, id) {
     e.stopPropagation();
+    if (!confirm("Delete this book? This will also remove all its annotations.")) return;
     try {
       await deleteBook(id);
       setBooks(books.filter((b) => b.id !== id));
@@ -63,7 +64,7 @@ export default function Books({ user, onLogout }) {
   return (
     <div className="books-container">
       <header className="header">
-        <h1 className="logo">📚 Books</h1>
+        <h1 className="logo">Books</h1>
         <div className="header-right">
           <span className="username">Hey, {user.name}</span>
           <button className="btn-outline" onClick={onLogout}>Sign out</button>
